@@ -8,8 +8,9 @@ from uuid import UUID, uuid4
 import httpx
 
 from .models import Batch, Event, Metric
+from .upload_model import upload_model
 
-__all__ = ["Batch", "Event", "Metric", "MetricsClient"]
+__all__ = ["Batch", "Event", "Metric", "MetricsClient", "upload_model"]
 
 
 class MetricsClient:
