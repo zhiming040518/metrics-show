@@ -8,7 +8,7 @@ from uuid import UUID, uuid4
 import httpx
 
 from .models import Batch, Event, Metric
-from .upload_model import upload_model
+from .upload_model import _post_model, upload_model
 
 __all__ = ["Batch", "Event", "Metric", "MetricsClient", "upload_model"]
 
@@ -92,6 +92,10 @@ class MetricsClient:
         status: Literal["completed", "failed", "stopped"] = "completed",
     ) -> None:
         self._request("POST", f"runs/{run_id}/heartbeat", json={"status": status})
+
+    def upload_model(self, run_id: UUID, file_path: str | os.PathLike[str]) -> dict:
+        """Upload a file after the service records this run as completed."""
+        return _post_model(self._http.post, f"runs/{run_id}/models", file_path)
 
     def iter_events(self, run_id: UUID, *, page_size: int = 500) -> Iterator[Event]:
         if not 1 <= page_size <= 10000:

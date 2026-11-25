@@ -25,7 +25,15 @@ Requests carry `Authorization: Bearer <token>`. Use the same `Event` objects or 
 
 ## Upload a model file
 
-After the server records the run as completed, set the run owner's workspace token in `METRICS_SHOW_TOKEN` (or reuse `TYPIE_API_KEY`), then pass the file path and run detail URL:
+When your training script already uses `MetricsClient`, reuse the client and run ID to upload after completion:
+
+```python
+client.finish(run_id)
+result = client.upload_model(run_id, "weights/best.pt")
+print(result["name"], result["sha256"])
+```
+
+To upload separately, set the run owner's workspace token in `METRICS_SHOW_TOKEN` (or reuse `TYPIE_API_KEY`), then pass the file path and run detail URL:
 
 ```python
 from metrics_show import upload_model
@@ -35,7 +43,9 @@ result = upload_model("weights/best.pt", run_url)
 print(result["name"], result["sha256"])
 ```
 
-Replace the example URL with the address copied from your browser. You can also pass the full `/api/v1/runs/{id}/models` endpoint URL. The helper streams the file using its local filename and returns the server's model metadata.
+Replace the example URL with the address copied from your browser. You can also pass the full `/api/v1/runs/{id}/models` endpoint URL. Both methods stream the file using its local filename and return the server's model metadata. Upload requires a completed run and a server with the model storage endpoint.
+
+## Testing
 
 The bundled contract tests use a mock transport or request stub and require no server or credentials.
 

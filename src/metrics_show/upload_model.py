@@ -47,6 +47,12 @@ def upload_model(file_path: str | os.PathLike[str], url: str) -> dict:
     )
     if not api_key:
         raise RuntimeError("Set METRICS_SHOW_TOKEN or TYPIE_API_KEY before uploading")
+    return _post_model(
+        httpx.post, endpoint, file_path, headers={"Authorization": f"Bearer {api_key}"}
+    )
+
+
+def _post_model(post, endpoint, file_path, *, headers=None):
     path = Path(file_path).expanduser()
     if not path.is_file():
         raise FileNotFoundError(f"Model file not found: {path}")
@@ -55,11 +61,11 @@ def upload_model(file_path: str | os.PathLike[str], url: str) -> dict:
         size = os.fstat(file.fileno()).st_size
         if not size:
             raise ValueError("Model file must not be empty")
-        response = httpx.post(
+        response = post(
             endpoint,
             params={"filename": path.name},
             headers={
-                "Authorization": f"Bearer {api_key}",
+                **(headers or {}),
                 "Content-Type": "application/octet-stream",
                 "Content-Length": str(size),
             },
